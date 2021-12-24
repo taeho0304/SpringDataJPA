@@ -13,11 +13,15 @@ import study.datajpa.entity.Member;
 @Transactional // -> Test가 끝날 때 다 Rollback을 시켜주고 JPA의 영속성 Context도 flush 안함 ( DB에 아무 쿼리도 보내지 않음 )
 @Rollback(false) // 등록 쿼리 확인용 -> Rollback을 안하고 Commit 시킴 ( 실무에서는 사용 x )
 class MemberRepositoryTest {
-
+    /**
+     * Spring이 Interface를 보고 Spring Data JPA가 구현체를 만들어서 Injection 시켜줌
+     * (Spring Data JPA가 Java의 기본적인 proxy 기술로 가짜 클래스를 만든 후 주입 )
+     */
     @Autowired MemberRepository memberRepository;
 
     @Test
     public void testMember(){
+        System.out.println("memberRepository = " + memberRepository.getClass());
         Member member = new Member("memberA");
         Member savedMember = memberRepository.save(member);
 
