@@ -1,30 +1,49 @@
 package study.datajpa.entity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
+/**
+ * jpa 표준 스펙을 참고하면 @Entity는 기본적으로 Default 생성자가 하나 있어야 함!
+ * access 레벨이 private 이면 안됨 ( 최소 protected까지 열어놔야함 )
+ * -> JPA가 proxing 기술을 사용할 때 JPA구현체( Hibernate ) 들이 proxing 하고 객체를 강제로 만들어 내야하는데
+ * 이때 private로 막아놓으면 그런게 다 막혀버릴 수 있다고 한다.
+ */
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@ToString(of = {"id", "username", "age"})
+// 연관관계 필드는 toString 안하는게 좋음 ( Team ) -> 연관관계를 계속 타며 출력하기 때문에 무한루프에 빠질 수 있음
 public class Member {
 
-    @Id @GeneratedValue
+    @Id
+    @GeneratedValue
+    @Column(name = "member_id")
     private Long id;
     private String userName;
+    private int age;
 
     /**
-     jpa 표준 스펙을 참고하면 @Entity는 기본적으로 Default 생성자가 하나 있어야 함!
-     access 레벨이 private 이면 안됨 ( 최소 protected까지 열어놔야함 )
-     -> JPA가 proxing 기술을 사용할 때 JPA구현체( Hibernate ) 들이 proxing 하고 객체를 강제로 만들어 내야하는데
-        이때 private로 막아놓으면 그런게 다 막혀버릴 수 있다고 한다.
+     * FetchType이 즉시로딩으로 걸려있으면 성능 최적화가 매우 어려워 가능한 Lazy로 셋팅
      */
-    protected Member() {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
+
+    public Member(String userName) { this.userName = userName; }
+
+    public Member(String userName, int age, Team team) {
+        this.userName = userName;
+        this.age = age;
+        if (team != null) {
+            changeTeam(team);
+        }
     }
 
-    public Member(String userName) {
-        this.userName = userName;
+    public void changeTeam(Team team) {
+        this.team = team;
+        team.getMembers().add(this);
     }
 }
