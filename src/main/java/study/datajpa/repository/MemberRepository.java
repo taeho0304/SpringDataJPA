@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -23,7 +24,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     List<Member> findTop3HelloBy();
 
-    @Query(name="Member.findByUserName") // 지워도 동작함
+    @Query(name = "Member.findByUserName") // 지워도 동작함
     List<Member> findByUserName(@Param("username") String username);
 
     /**
@@ -37,4 +38,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("select new study.datajpa.dto.MemberDto( m.id, m.userName, t.name) from Member m join m.team t")
     List<MemberDto> findMemberDto();
+
+    @Query("select m from Member m where m.userName in :names")
+    List<Member> findByNames(@Param("names") Collection<String> names);
 }
