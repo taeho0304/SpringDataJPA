@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
+import study.datajpa.dto.MemberDto;
 import study.datajpa.entity.Member;
+import study.datajpa.entity.Team;
 
 import java.util.List;
 
@@ -19,10 +21,13 @@ class MemberRepositoryTest {
      * Spring이 Interface를 보고 Spring Data JPA가 구현체를 만들어서 Injection 시켜줌
      * (Spring Data JPA가 Java의 기본적인 proxy 기술로 가짜 클래스를 만든 후 주입 )
      */
-    @Autowired MemberRepository memberRepository;
+    @Autowired
+    MemberRepository memberRepository;
+    @Autowired
+    TeamRepository teamRepository;
 
     @Test
-    public void testMember(){
+    public void testMember() {
         System.out.println("memberRepository = " + memberRepository.getClass());
         Member member = new Member("memberA");
         Member savedMember = memberRepository.save(member);
@@ -40,7 +45,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void basicCRUD(){
+    public void basicCRUD() {
         Member member1 = new Member("member1");
         Member member2 = new Member("member2");
         memberRepository.save(member1);
@@ -70,13 +75,13 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void findByUsernameAndAgeGreaterThen(){
-        Member member1 = new Member("AAA",10);
-        Member member2 = new Member("AAA",20);
+    public void findByUsernameAndAgeGreaterThen() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("AAA", 20);
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-        List<Member> result = memberRepository.findByUserNameAndAgeGreaterThan("AAA",15);
+        List<Member> result = memberRepository.findByUserNameAndAgeGreaterThan("AAA", 15);
 
         Assertions.assertThat(result.get(0).getUserName()).isEqualTo("AAA");
         Assertions.assertThat(result.get(0).getAge()).isEqualTo(20);
@@ -84,14 +89,14 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void findHelloBy(){
+    public void findHelloBy() {
         List<Member> helloby = memberRepository.findTop3HelloBy();
     }
 
     @Test
-    public void testNamedQuery(){
-        Member member1 = new Member("AAA",10);
-        Member member2 = new Member("AAA",20);
+    public void testNamedQuery() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("AAA", 20);
         memberRepository.save(member1);
         memberRepository.save(member2);
 
@@ -101,15 +106,39 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void testQuery(){
-        Member member1 = new Member("AAA",10);
-        Member member2 = new Member("AAA",20);
+    public void testQuery() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("AAA", 20);
         memberRepository.save(member1);
         memberRepository.save(member2);
 
-        List<Member> result = memberRepository.findUser("AAA",10);
+        List<Member> result = memberRepository.findUser("AAA", 10);
         Assertions.assertThat(result.get(0)).isEqualTo(member1);
     }
 
+    @Test
+    public void testUserNameList() {
+        Member member1 = new Member("AAA", 10);
+        Member member2 = new Member("AAA", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
 
+        List<String> result = memberRepository.findUserNameList();
+        Assertions.assertThat(result.get(0)).isEqualTo(member1.getUserName());
+    }
+
+    @Test
+    public void findMemberDto() {
+        Team team = new Team("teamA");
+        teamRepository.save(team);
+
+        Member member1 = new Member("AAA", 10);
+        member1.setTeam(team);
+        memberRepository.save(member1);
+
+        List<MemberDto> memberDto = memberRepository.findMemberDto();
+        for (MemberDto dto : memberDto ) {
+            System.out.println("dto = " + dto);
+        }
+    }
 }
