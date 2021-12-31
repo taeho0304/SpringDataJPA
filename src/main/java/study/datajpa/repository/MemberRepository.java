@@ -8,6 +8,7 @@ import study.datajpa.entity.Member;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @Repository 생략 가능
@@ -39,6 +40,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select new study.datajpa.dto.MemberDto( m.id, m.userName, t.name) from Member m join m.team t")
     List<MemberDto> findMemberDto();
 
+    /**
+     * 파라미터 바인딩은 위치 기반, 이름 기반 중 가급적 이름 기반을 사용
+     * 위치 기반은 위치가 바껴버리면 에러가 발생할 수 있음
+     * 가독성, 유지보수면에서 이름 기반이 낫다.
+     * */
     @Query("select m from Member m where m.userName in :names")
     List<Member> findByNames(@Param("names") Collection<String> names);
+
+    List<Member> findListByUserName(String userName);
+    Member findMemberByUserName(String userName);
+    Optional<Member> findOptionalByUserName(String userName);
 }
