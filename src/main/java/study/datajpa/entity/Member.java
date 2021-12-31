@@ -15,6 +15,14 @@ import javax.persistence.*;
  */
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"id", "username", "age"})
+
+/**
+ * Named Query는 애플리케이션 로딩 시점에 쿼리문을 파싱해 문법 오류가 있으면 알려주는 장점이 있음
+ * */
+@NamedQuery(
+        name = "Member.findByUserName",
+        query="select  m from Member m where m.userName = :username"
+)
 // 연관관계 필드는 toString 안하는게 좋음 ( Team ) -> 연관관계를 계속 타며 출력하기 때문에 무한루프에 빠질 수 있음
 public class Member {
 
