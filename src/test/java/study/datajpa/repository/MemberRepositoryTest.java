@@ -87,4 +87,16 @@ class MemberRepositoryTest {
     public void findHelloBy(){
         List<Member> helloby = memberRepository.findTop3HelloBy();
     }
+
+    @Test
+    public void testNamedQuery(){
+        Member member1 = new Member("AAA",10);
+        Member member2 = new Member("AAA",20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<Member> result = memberRepository.findByUserName("AAA");
+        Member findMember = result.get(0);
+        Assertions.assertThat(findMember).isEqualTo(member1);
+    }
 }
