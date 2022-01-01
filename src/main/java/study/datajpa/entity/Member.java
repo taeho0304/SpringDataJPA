@@ -23,6 +23,7 @@ import javax.persistence.*;
         name = "Member.findByUserName",
         query="select  m from Member m where m.userName = :username"
 )
+@NamedEntityGraph(name = "Member.all", attributeNodes = @NamedAttributeNode("team"))
 // 연관관계 필드는 toString 안하는게 좋음 ( Team ) -> 연관관계를 계속 타며 출력하기 때문에 무한루프에 빠질 수 있음
 public class Member {
 
@@ -35,6 +36,8 @@ public class Member {
 
     /**
      * FetchType이 즉시로딩으로 걸려있으면 성능 최적화가 매우 어려워 가능한 Lazy로 셋팅
+     * Lazy로 설정해 둘 경우 프록시 가짜 객체를 만들어서 놔둠
+     * -> 이후 team.getName()과 같이 호출이 들어오면 그때 실제 DB에 쿼리를 날려서 값을 가져옴
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
