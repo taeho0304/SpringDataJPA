@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,7 +27,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     List<Member> findTop3HelloBy();
 
-    @Query(name = "Member.findByUserName") // 지워도 동작함
+    @Query(name = "Member.findByUserName")
+        // 지워도 동작함
     List<Member> findByUserName(@Param("username") String username);
 
     /**
@@ -44,11 +47,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      * 파라미터 바인딩은 위치 기반, 이름 기반 중 가급적 이름 기반을 사용
      * 위치 기반은 위치가 바껴버리면 에러가 발생할 수 있음
      * 가독성, 유지보수면에서 이름 기반이 낫다.
-     * */
+     */
     @Query("select m from Member m where m.userName in :names")
     List<Member> findByNames(@Param("names") Collection<String> names);
 
     List<Member> findListByUserName(String userName);
     Member findMemberByUserName(String userName);
     Optional<Member> findOptionalByUserName(String userName);
+
+    @Query(value = "select m from Member m left join m.team t",
+            countQuery = "select count(m) from Member m")
+    Page<Member> findByAge(int age, Pageable pageable);
 }
