@@ -200,12 +200,12 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void bulkUpdate(){
-        memberRepository.save(new Member("member1",10));
-        memberRepository.save(new Member("member1",19));
-        memberRepository.save(new Member("member1",20));
-        memberRepository.save(new Member("member1",21));
-        memberRepository.save(new Member("member1",22));
+    public void bulkUpdate() {
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member1", 19));
+        memberRepository.save(new Member("member1", 20));
+        memberRepository.save(new Member("member1", 21));
+        memberRepository.save(new Member("member1", 22));
 
         //when
         int resultCount = memberRepository.bulkAgePlus(20);
@@ -220,7 +220,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void findMemberLazy(){
+    public void findMemberLazy() {
         //given
         //member1 -> teamA
         //member2 -> teamB
@@ -241,14 +241,43 @@ class MemberRepositoryTest {
 
         //when N+1
         //select Member 1
-//        List<Member> members = memberRepository.findAll();
-//        List<Member> members = memberRepository.findMemberByFetchJoin();
+        //List<Member> members = memberRepository.findAll();
+        //List<Member> members = memberRepository.findMemberByFetchJoin();
         List<Member> members = memberRepository.findEntityGraphByUserName("member1");
 
-        for(Member member : members){
+        for (Member member : members) {
             System.out.println("member = " + member.getUserName());
             System.out.println("member = " + member.getTeam().getClass());
             System.out.println("member.team = " + member.getTeam().getName());
         }
+    }
+
+    @Test
+    public void queryHint() {
+        //given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        /**
+         * flush -> JPA 안에 있는 영속성 context(1차 캐시)의 결과를 DB에 동기화
+         * clear -> 영속성 context 날려버림
+         * */
+        em.flush();
+        em.clear();
+
+        //when
+        Member findMember = memberRepository.findReadOnlyByUserName("member1");
+        findMember.setUserName("member2");
+
+        em.flush(); // 변경감지
+    }
+
+    @Test
+    public void lock() {
+        //given
+        Member member1 = memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> result = memberRepository.findLockByUserName("member1");
     }
 }
