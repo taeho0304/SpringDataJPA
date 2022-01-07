@@ -25,7 +25,7 @@ import javax.persistence.*;
 )
 @NamedEntityGraph(name = "Member.all", attributeNodes = @NamedAttributeNode("team"))
 // 연관관계 필드는 toString 안하는게 좋음 ( Team ) -> 연관관계를 계속 타며 출력하기 때문에 무한루프에 빠질 수 있음
-public class Member {
+public class Member extends BaseEntity{
 
     @Id
     @GeneratedValue
